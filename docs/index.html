@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@400;700;900&display=swap">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏀</text></svg>">
 </head>
 <body>
@@ -42,12 +42,13 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-<script src="vocab.js?v=3"></script>
-<script src="vocabtools.js?v=3"></script>
-<script src="data.js?v=3"></script>
-<script src="extra.js?v=3"></script>
-<script src="videos.js?v=3"></script>
-<script src="common.js?v=3"></script>
+<script src="vocab.js?v=4"></script>
+<script src="vocabtools.js?v=4"></script>
+<script src="data.js?v=4"></script>
+<script src="extra.js?v=4"></script>
+<script src="videos.js?v=4"></script>
+<script src="rebound.js?v=4"></script>
+<script src="common.js?v=4"></script>
 <script>
 const H = window.Hoops, esc = H.esc, L = 'ABCD', $ = s => document.querySelector(s);
 $('#career').innerHTML = H.careerCard();
@@ -61,9 +62,27 @@ function mcq(q, opts, ans, explain, tag, cls){
 const zhHTML = s => esc(s).replace(/\{(.*?)\}/g, '<u>$1</u>');
 const wc = u => u.article.join(' ').split(/\s+/).filter(Boolean).length;
 
+// 段落：書信稱呼、署名、日記日期等短行不縮排
+const para = (html, raw) => `<p${raw.length < 40 ? ' class="noind"' : ''}>${html}</p>`;
+const enHTML = (list, re) => list.map(p => para(esc(p).replace(re, '<u>$&</u>'), p)).join('');
+const zhList = (list, en) => list.map((p, k) => para(zhHTML(p), en[k])).join('');
+const sec = (id, icon, en, zh, body, open, note) => `<details class="sec" id="sec-${id}"${open ? ' open' : ''}>
+  <summary><span class="ico">${icon}</span><span class="st"><b>${en}</b><small>${zh}</small></span>${note ? `<span class="chip">${note}</span>` : ''}<span class="chev">▾</span></summary>
+  <div class="sec-body">${body}</div></details>`;
+const reader = (id, list, re) => `
+  <div class="tools">
+    <button class="btn sm" data-read="${id}">🔊 朗讀全文</button>
+    <button class="btn sm" data-stop>⏹ 停止</button>
+    <label class="toggle" style="margin-left:auto"><input type="checkbox" class="hl" checked> 課本單字畫底線</label>
+  </div>
+  <div class="article">${enHTML(list, re)}</div>`;
+const zhBox = (list, en) => `<details class="inner"><summary>🀄 看中文翻譯（先自己讀懂再打開！）</summary><div class="zh">${zhList(list, en)}</div></details>`;
+
 function unitHTML(u, i){
-  const re = VocabTools.vocabRegex(VOCAB[i], u.id);
-  const art = u.article.map(p => '<p>' + esc(p).replace(re, '<u>$&</u>') + '</p>').join('');
+  const re = VocabTools.vocabRegex(VOCAB[i], u.id), rb = REBOUND[i];
+  // 第二篇重複用到的第一篇課本單字數
+  const seen = new Set((u.article.join(' ').match(re) || []).map(w => w.toLowerCase()));
+  const again = new Set((rb.en.join(' ').match(re) || []).map(w => w.toLowerCase()).filter(w => seen.has(w))).size;
   const g = u.grammar.map((x,k) => `<div class="gram">
       <h3>文法 ${k+1}｜${x.t}</h3>
       <p class="d">${x.d}</p>
@@ -81,28 +100,23 @@ function unitHTML(u, i){
     <div class="meta"><span class="chip">${u.book} ${u.lessons}</span><span class="chip hot">會考 ${u.level}</span>
       <span class="chip">${u.genre}</span><span class="chip">${wc(u)} words</span><span class="chip">單字 ${VOCAB[i].length} 個</span></div>
     <div class="scope">文法範圍：${u.grammarScope}</div>
+    <div class="secbar"><button class="btn sm" data-all="open">全部展開</button><button class="btn sm" data-all="close">全部收合</button></div>
   </div>
-  <div class="card">
-    <div class="tools">
-      <button class="btn sm" id="readAll">🔊 朗讀全文</button>
-      <button class="btn sm" id="stopRead">⏹ 停止</button>
-      <label class="toggle" style="margin-left:auto"><input type="checkbox" id="hl" checked> 課本單字畫底線</label>
-    </div>
-    <div class="article" id="art">${art}</div>
-  </div>
-  <div class="card">
-    <h3>閱讀測驗 <span class="chip">${u.reading.type}</span></h3>
+  ${sec('read', '📖', 'READING', '文章・閱讀測驗・中文翻譯', `
+    ${reader('main', u.article, re)}
+    <div class="subhead">閱讀測驗 <span class="chip">${u.reading.type}</span></div>
     ${mcq(u.reading.q, u.reading.o, u.reading.a, u.reading.ex)}
-  </div>
-  <div class="card">
-    <details><summary style="cursor:pointer;font-weight:800">🀄 看中文翻譯（先自己讀懂再打開！）</summary>
-      <div class="zh" id="zh" style="margin-top:12px">${u.zh.map(p=>'<p>'+zhHTML(p)+'</p>').join('')}</div></details>
-  </div>
-  <div class="card"><h2 class="sec-title">GRAMMAR ・ 重點文法</h2>${g}</div>
-  <div class="card"><h2 class="sec-title">WATCH ・ 延伸影片</h2>
+    ${zhBox(u.zh, u.article)}`, true)}
+  ${sec('gram', '🧠', 'GRAMMAR', '重點文法（基本題＋會考題）', g, false, '6 題')}
+  ${sec('watch', '🎬', 'WATCH', '延伸影片', `
     <p class="muted" style="margin-top:0;font-size:13px">點縮圖播放。字幕：按 CC → ⚙️ → 字幕 → 自動翻譯 → 中文（繁體）。</p>
-    <div class="vids">${vids}</div></div>
-  <div class="card"><h2 class="sec-title">PLAY ・ 本單元遊戲</h2>
+    <div class="vids">${vids}</div>`, false, (VIDEOS[u.id] || []).length + ' 支')}
+  ${sec('rebound', '🏀', 'REBOUND', '籃板閱讀・同一批單字再搶一次！', `
+    <h3 class="rb-title">${esc(rb.title)}</h3>
+    <p class="muted" style="margin:0 0 10px;font-size:13px">籃板球＝第二次得分機會。這篇重複用到第一篇的 ${again} 個課本單字，讀讀看你還記得多少！</p>
+    ${reader('rebound', rb.en, re)}
+    ${zhBox(rb.zh, rb.en)}`, false, rb.en.join(' ').split(/\s+/).length + ' words')}
+  ${sec('play', '🎮', 'PLAY', '本單元遊戲', `
     <div class="qrbox">
       <div class="qr">${H.qrSvg(playUrl)}</div>
       <div class="stack" style="flex:1;min-width:200px">
@@ -110,9 +124,9 @@ function unitHTML(u, i){
         <a class="btn" href="play.html?mode=battle&u=${u.id}">⚔️ 1 vs 1 對戰：Unit ${u.id}</a>
         <span class="muted" style="font-size:13px">手機掃 QR code 直接進入本單元對戰。</span>
       </div>
-    </div></div>`;
+    </div>`, false)}`;
 }
-function bind(u){
+function bind(u, i){
   document.querySelectorAll('.mcq').forEach(box => box.querySelectorAll('.opts button').forEach(b => b.onclick = () => {
     if (box.classList.contains('answered')) return;
     const a = +box.dataset.a, k = +b.dataset.k;
@@ -120,9 +134,13 @@ function bind(u){
     box.querySelectorAll('.opts button').forEach(x => { x.disabled = true; if (+x.dataset.k === a) x.classList.add('right'); });
     if (k !== a) b.classList.add('wrong');
   }));
-  $('#hl').onchange = e => { $('#art').classList.toggle('plain', !e.target.checked); $('#zh').classList.toggle('plain', !e.target.checked); };
-  $('#readAll').onclick = () => H.speak(u.article.join(' '), 0.85);
-  $('#stopRead').onclick = () => window.speechSynthesis && speechSynthesis.cancel();
+  document.querySelectorAll('.hl').forEach(c => c.onchange = () =>
+    c.closest('.sec-body').querySelectorAll('.article, .zh').forEach(x => x.classList.toggle('plain', !c.checked)));
+  document.querySelectorAll('[data-read]').forEach(b => b.onclick = () =>
+    H.speak((b.dataset.read === 'main' ? u.article : REBOUND[i].en).join(' '), 0.85));
+  document.querySelectorAll('[data-stop]').forEach(b => b.onclick = () => window.speechSynthesis && speechSynthesis.cancel());
+  document.querySelectorAll('[data-all]').forEach(b => b.onclick = () =>
+    document.querySelectorAll('details.sec').forEach(d => d.open = b.dataset.all === 'open'));
   document.querySelectorAll('.vid .frame').forEach(f => f.onclick = () => {
     f.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${f.dataset.id}?autoplay=1&cc_load_policy=1&cc_lang_pref=zh-Hant&hl=zh-TW&rel=0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
   });
@@ -130,7 +148,7 @@ function bind(u){
 function show(i){
   window.speechSynthesis && speechSynthesis.cancel();
   $('#view').innerHTML = unitHTML(UNITS[i], i);
-  bind(UNITS[i]);
+  bind(UNITS[i], i);
   document.querySelectorAll('#units button').forEach((b,k)=>b.classList.toggle('on', k===i));
   history.replaceState(null, '', '#u' + (i+1));
   $('#goSolo').href = 'play.html?mode=solo&u=' + (i+1);

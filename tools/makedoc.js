@@ -118,11 +118,13 @@ async function unitPages(u, i, teacher) {
   kids.push(P([], { pb: true, after: 0, line: 240 }));
   kids.push(band('UNIT ' + u.id, u.title, `${u.book} ${u.lessons}　｜　${u.genre}　｜　${u.article.join(' ').split(/\s+/).length} words`));
   kids.push(label('READING', '閱讀'));
-  u.article.forEach(p => kids.push(P(enRuns(p, re, eng), { after: 110, line: 312 })));
+  // 段落首行縮排（作文格式）；書信稱呼、署名、日記日期等短行不縮排
+  const ind = (en, w) => en.length < 40 ? undefined : { firstLine: w };
+  u.article.forEach(p => kids.push(P(enRuns(p, re, eng), { after: 110, line: 312, indent: ind(p, 560) })));
   kids.push(label('QUESTION', '閱讀測驗'));
   kids.push(...question(1, u.reading.q, u.reading.o, u.reading.a, teacher, { size: 23 }));
   kids.push(label('TRANSLATION', '中文翻譯'));
-  u.zh.forEach(p => kids.push(P(zhRuns(p, { size: 21 }), { after: 70, line: 320 })));
+  u.zh.forEach((p, k) => kids.push(P(zhRuns(p, { size: 21 }), { after: 70, line: 320, indent: ind(u.article[k], 420) })));
   // ---- 第二頁
   kids.push(P([], { pb: true, after: 0, line: 240 }));
   kids.push(band('UNIT ' + u.id, 'GRAMMAR FOCUS', '重點文法｜' + u.grammarScope));

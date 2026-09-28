@@ -176,3 +176,27 @@ button{font:inherit;cursor:pointer;color:inherit}
   .article,.zh{color:#000}
 }
 #modeBox{display:grid;gap:10px}
+
+/* ---- 可收放的五大區塊 ---- */
+.secbar{display:flex;gap:8px;margin-top:12px}
+details.sec{background:var(--card);border:1px solid var(--line);border-radius:18px;margin:12px 0;overflow:hidden}
+details.sec>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary .ico{font-size:28px;line-height:1}
+details.sec>summary .st{flex:1;line-height:1.15}
+details.sec>summary .st b{display:block;font-family:var(--head);font-size:26px;letter-spacing:1px;font-weight:400}
+details.sec>summary .st small{color:var(--muted);font-size:13px}
+details.sec>summary .chev{font-size:20px;color:var(--muted);transition:transform .2s}
+details.sec[open]>summary{border-bottom:1px solid var(--line);background:var(--card2)}
+details.sec[open]>summary .chev{transform:rotate(180deg);color:var(--fire)}
+details.sec[open]>summary .st b{color:var(--fire2)}
+.sec-body{padding:16px}
+.subhead{font-weight:800;margin:18px 0 8px}
+details.inner{margin-top:16px;border-top:1px dashed var(--line);padding-top:12px}
+details.inner>summary{cursor:pointer;font-weight:800}
+details.inner .zh{margin-top:12px}
+.rb-title{font-family:var(--serif);font-size:22px;margin:0 0 4px}
+/* 段落首行縮排（作文格式） */
+.article p{text-indent:2.5em}
+.zh p{text-indent:2em}
+.article p.noind,.zh p.noind{text-indent:0}
