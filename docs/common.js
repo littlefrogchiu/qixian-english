@@ -10,7 +10,7 @@
     { xp: 2200,  e: '📝', en: 'Draft Pick',       zh: '選秀新秀' },
     { xp: 3500,  e: '💪', en: 'Pro Starter',      zh: '職業先發' },
     { xp: 5200,  e: '⭐', en: 'All-Star',         zh: '全明星' },
-    { xp: 7500,  e: '🏆', en: 'MVP',              zh: '年度最有價值球員' },
+    { xp: 7500,  e: '🏆', en: 'MVP',              zh: '年度 MVP' },
     { xp: 10500, e: '💍', en: 'Champion',         zh: '總冠軍' },
     { xp: 14500, e: '🏛️', en: 'Hall of Famer',    zh: '名人堂' },
     { xp: 20000, e: '👴', en: 'Legend Coach',     zh: '退休傳奇教練' }
@@ -59,7 +59,11 @@
       (s.next ? '　下一站 ' + s.next.e + ' ' + s.next.en + '（' + s.next.xp + ' XP）' : '　生涯頂點！') + '</div>' +
       '<div class="xpbar"><i style="width:' + s.pct + '%"></i></div></div></div>' +
       '<div class="ladder">' + CAREER.map(function (c, i) {
-        return '<div class="' + (i <= s.i ? 'got' : '') + (i === s.i ? ' now' : '') + '" title="' + c.en + '・' + c.zh + '（' + c.xp + ' XP）">' + c.e + '</div>';
+        var st = i < s.i ? 'got' : i === s.i ? 'got now' : 'lock';
+        return '<div class="' + st + '" title="' + c.en + '（' + c.xp + ' XP）">' +
+          (i === s.i ? '<span class="you">YOU</span>' : '') +
+          '<span class="n">' + (i + 1) + '</span><span class="e">' + c.e + '</span>' +
+          '<b>' + c.zh + '</b><small>' + (i < s.i ? '✓ 已達成' : i === s.i ? '目前階段' : c.xp.toLocaleString() + ' XP') + '</small></div>';
       }).join('') + '</div>';
   }
 

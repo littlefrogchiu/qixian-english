@@ -200,3 +200,23 @@ details.inner .zh{margin-top:12px}
 .article p{text-indent:2.5em}
 .zh p{text-indent:2em}
 .article p.noind,.zh p.noind{text-indent:0}
+
+/* ---- 生涯階梯：圖示＋中文 ---- */
+.ladder{grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+@media(min-width:560px){.ladder{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:860px){.ladder{grid-template-columns:repeat(6,1fr)}}
+.ladder div{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px 8px;border-radius:14px;
+  background:var(--bg2);border:1px solid var(--line);opacity:1}
+.ladder div .n{position:absolute;top:4px;left:8px;font-family:var(--head);font-size:14px;color:var(--muted)}
+.ladder div .e{font-size:30px;line-height:1.1}
+.ladder div b{font-size:14px;font-weight:900;line-height:1.25;text-align:center}
+.ladder div small{font-size:11px;color:var(--muted)}
+.ladder div.lock{opacity:.5}
+.ladder div.lock .e{filter:grayscale(1)}
+.ladder div.got{background:var(--card2)}
+.ladder div.got small{color:var(--ok)}
+.ladder div.now{outline:none;border:2px solid var(--fire);background:linear-gradient(160deg,rgba(255,107,26,.28),rgba(255,176,32,.08));
+  box-shadow:0 0 18px rgba(255,107,26,.45);animation:glow 1.6s ease-in-out infinite alternate}
+.ladder div.now b{color:var(--fire2)} .ladder div.now small{color:#fff;font-weight:800}
+.ladder .you{position:absolute;top:-9px;right:6px;background:var(--fire);color:#fff;font-size:10px;font-weight:900;padding:1px 6px;border-radius:99px;letter-spacing:1px}
+@keyframes glow{from{box-shadow:0 0 8px rgba(255,107,26,.3)}to{box-shadow:0 0 22px rgba(255,107,26,.65)}}
