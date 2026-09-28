@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Qixian Hoops Game</title>
+<meta name="description" content="七賢籃球英語：單字英翻中、例句填空；個人晉級與 1 vs 1 對戰">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@400;700;900&display=swap">
+<link rel="stylesheet" href="style.css?v=3">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏀</text></svg>">
+</head>
+<body>
+<header class="bar" id="hdr"><div class="wrap">
+  <a class="logo" href="index.html">QIXIAN <b>HOOPS</b></a>
+  <nav><a href="index.html#study">📖 教材</a><a href="play.html?mode=solo" id="navSolo">🏀 晉級</a><a href="play.html?mode=battle" id="navBattle">⚔️ 對戰</a></nav>
+</div></header>
+<main class="wrap" id="app"></main>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="words.js?v=3"></script>
+<script src="data.js?v=3"></script>
+<script src="extra.js?v=3"></script>
+<script src="common.js?v=3"></script>
+<script>
+/* ---------- 基本設定 ---------- */
+const H = window.Hoops, esc = H.esc, shuffle = H.shuffle, $ = s => document.querySelector(s), app = $('#app');
+const U = window.UNITS, W = window.WORDS, L = 'ABCD', PREFIX = 'qixian-en-';
+const TYPES = {
+  word: { name: '單字英翻中', icon: '🔤', time: 10, pause: 1100, desc: '聽發音選中文・每題 10 秒・本單元全部單字' },
+  sent: { name: '例句填空',   icon: '✍️', time: 25, pause: 2400, desc: '看中譯、可聽整句・每題 25 秒・5 題' }
+};
+const params = new URLSearchParams(location.search);
+let unit = Math.min(U.length, Math.max(1, +params.get('u') || +H.get('qx_unit') || 1)) - 1;
+let mode = params.get('mode') === 'battle' ? 'battle' : 'solo';
+let type = H.get('qx_type') === 'sent' ? 'sent' : 'word';
+let peer = null, conn = null, G = null, timerId = null;
+
+/* ---------- 出題 ---------- */
+function stripHint(s){ return s.replace(/（[^）]*）\s*$/, '').trim(); }
+function makeQuestions(ui, t){
+  if (t === 'word') {
+    const list = W[ui];
+    return shuffle(list).map(w => {
+      const pool = shuffle(list.filter(x => x.zh !== w.zh)).map(x => x.zh).filter((z, k, a) => a.indexOf(z) === k).slice(0, 3);
+      const o = shuffle([w.zh, ...pool]);
+      return { kind: 'word', q: w.en, say: w.say, o, a: o.indexOf(w.zh) };
+    });
+  }
+  const b = U[ui].battle;
+  const list = [...shuffle(b.text).slice(0, 4), shuffle(b.apply)[0]];
+  return list.map((x, i) => {
+    const o = shuffle(x.o), q = stripHint(x.q);
+    return { kind: 'sent', q, zh: x.zh, say: q.replace('______', x.o[0]).replace(/\b[AB]: /g, ''), o, a: o.indexOf(x.o[0]), apply: i === 4 };
+  });
+}
+function points(t, ok, ms){
+  if (!ok) return 0;
+  const left = Math.max(0, TYPES[t].time * 1000 - ms) / 1000;
+  return t === 'word' ? 10 + Math.round(left) : 50 + Math.round(left * 2);
+}
+
+/* ---------- 大廳 ---------- */
+function lobby(msg){
+  stopTimer(); closeNet(); G = null;
+  $('#hdr').style.display = '';
+  const join = (params.get('join') || '').replace(/\D/g, '');
+  if (join) return joinScreen(join);
+  $('#navSolo').classList.toggle('on', mode === 'solo'); $('#navBattle').classList.toggle('on', mode === 'battle');
+  app.innerHTML = `
+  <div class="card">${H.careerCard()}</div>
+  ${msg ? `<div class="card err">${esc(msg)}</div>` : ''}
+  <div class="card stack">
+    <div class="seg" id="modeSeg">
+      <button data-v="solo"><b>🏀 個人晉級</b><small>自己練，累積 XP 升級生涯</small></button>
+      <button data-v="battle"><b>⚔️ 1 vs 1 對戰</b><small>掃 QR code 和同學 PK</small></button>
+    </div>
+    <div class="seg" id="typeSeg">
+      ${Object.keys(TYPES).map(k => `<button data-v="${k}"><b>${TYPES[k].icon} ${TYPES[k].name}</b><small>${TYPES[k].desc}</small></button>`).join('')}
+    </div>
+    <label>單元<select class="field" id="un">${U.map((u,i)=>`<option value="${i}" ${i===unit?'selected':''}>Unit ${u.id}｜${u.book} ${u.lessons}｜${esc(u.title)}（${W[i].length} 字）</option>`).join('')}</select></label>
+    <div id="modeBox"></div>
+  </div>`;
+  const seg = (id, val, set) => { document.querySelectorAll('#' + id + ' button').forEach(b => { b.classList.toggle('on', b.dataset.v === val); b.onclick = () => { set(b.dataset.v); lobby(); }; }); };
+  seg('modeSeg', mode, v => mode = v);
+  seg('typeSeg', type, v => { type = v; H.set('qx_type', v); });
+  $('#un').onchange = e => { unit = +e.target.value; H.set('qx_unit', String(unit + 1)); };
+  if (mode === 'solo') {
+    $('#modeBox').innerHTML = `<button class="btn fire" id="go" style="width:100%;font-size:18px">▶ 開始練習</button>`;
+    $('#go').onclick = () => startSolo();
+  } else {
+    $('#modeBox').innerHTML = `
+      <label>你的暱稱<input class="field" id="nm" maxlength="10" placeholder="例如：Jay" value="${esc(H.get('qx_name'))}"></label>
+      <button class="btn fire" id="host">📱 建立房間（顯示 QR code）</button>
+      <div style="display:flex;gap:8px"><input class="field" id="code" inputmode="numeric" maxlength="4" placeholder="4 位數房號" style="margin:0">
+        <button class="btn" id="join" style="white-space:nowrap">加入</button></div>
+      <button class="btn" id="local">🤝 同一台平板面對面（不需網路）</button>`;
+    const name = () => { const v = $('#nm').value.trim() || '玩家'; H.set('qx_name', v); return v; };
+    $('#host').onclick = () => hostScreen(name());
+    $('#join').onclick = () => { const c = $('#code').value.replace(/\D/g,''); if (c.length === 4) { name(); joinScreen(c); } else $('#code').focus(); };
+    $('#local').onclick = () => startLocal();
+  }
+}
+
+/* ---------- 計時 ---------- */
+function startTimer(sec, onEnd){
+  stopTimer();
+  G.t0 = performance.now();
+  timerId = setInterval(() => {
+    const left = Math.max(0, sec - (performance.now() - G.t0) / 1000);
+    document.querySelectorAll('.timer i').forEach(b => b.style.width = (left / sec * 100) + '%');
+    document.querySelectorAll('.tleft').forEach(b => b.textContent = Math.ceil(left));
+    if (left <= 0) { stopTimer(); document.querySelectorAll('.bopts button').forEach(b => b.disabled = true); onEnd && onEnd(); }
+  }, 100);
+}
+function stopTimer(){ if (timerId) clearInterval(timerId); timerId = null; }
+function countdown(title, then){
+  let n = 3;
+  const draw = () => G && G.i >= 0 ? null : app.innerHTML =`<div class="card center" style="margin-top:18vh"><p class="muted">${title}</p><div class="bigt" style="font-size:96px">${n}</div></div>`;
+  draw();
+  const id = setInterval(() => { n--; if (n <= 0) { clearInterval(id); then(); } else draw(); }, 800);
+}
+
+/* ---------- 題目畫面 ---------- */
+function qBody(q){
+  if (q.kind === 'word') return `<div class="word">${esc(q.q)}</div><div class="center"><button class="say" data-say="${esc(q.say)}">🔊 再聽一次</button></div>`;
+  return `<div class="bq">${esc(q.q)}</div><div class="bzh">🀄 ${esc(q.zh)}</div><button class="say" data-say="${esc(q.say)}">🔊 聽整句</button>`;
+}
+function bindSay(root){ (root || document).querySelectorAll('.say').forEach(b => b.onclick = () => H.speak(b.dataset.say, G && G.type === 'sent' ? 0.85 : 0.9)); }
+function qCard(q, i, total, extraHead){
+  return `<div class="card">
+    <div class="qhead"><span>第 ${i + 1} / ${total} 題 ${q.kind === 'sent' ? (q.apply ? '<span class="tag2 fire">單字應用</span>' : '<span class="tag2">文章例句</span>') : ''}</span>
+      <span>${extraHead || ''} ⏱ <span class="tleft">${TYPES[G.type].time}</span>s</span></div>
+    <div class="timer"><i></i></div>
+    ${qBody(q)}
+    <div class="bopts ${q.kind === 'word' ? 'two' : ''}" style="margin-top:14px">${q.o.map((o,k)=>`<button data-k="${k}"><b>${L[k]}.</b> ${esc(o)}<span class="who"></span></button>`).join('')}</div>
+  </div>`;
+}
+
+/* ================= 個人晉級 ================= */
+function startSolo(){
+  closeNet();
+  G = { mode: 'solo', type, unit, qs: makeQuestions(unit, type), i: -1, score: 0, streak: 0, best: 0, right: 0, done: 0, wrong: [] };
+  H.set('qx_unit', String(unit + 1));
+  countdown(`Unit ${U[unit].id}・${TYPES[type].icon} ${TYPES[type].name}`, soloNext);
+}
+function soloHud(){
+  return `<div class="hud"><span class="pill">🏀 ${G.score}</span><span class="pill combo">${G.streak >= 3 ? '🔥 COMBO x' + G.streak : '✔ ' + G.right + ' / ' + G.done}</span>
+    <button class="btn sm" id="quit">結束結算</button></div>`;
+}
+function soloNext(){
+  G.i++;
+  if (G.i >= G.qs.length) return soloEnd();
+  const q = G.qs[G.i];
+  G.locked = false;
+  app.innerHTML = soloHud() + qCard(q, G.i, G.qs.length);
+  bindSay(); $('#quit').onclick = soloEnd;
+  app.querySelectorAll('.bopts button').forEach(b => b.onclick = () => soloAnswer(+b.dataset.k));
+  if (q.kind === 'word') H.speak(q.say);
+  startTimer(TYPES[G.type].time, () => soloAnswer(-1));
+}
+function soloAnswer(k){
+  if (G.locked) return;
+  G.locked = true; stopTimer();
+  const q = G.qs[G.i], ms = performance.now() - G.t0, ok = k === q.a;
+  let p = points(G.type, ok, ms);
+  G.done++;
+  if (ok) { G.right++; G.streak++; G.best = Math.max(G.best, G.streak); if (G.streak >= 3) p += 5; G.score += p; }
+  else { G.streak = 0; G.wrong.push(q); }
+  const bs = app.querySelectorAll('.bopts button');
+  bs.forEach(b => { b.disabled = true; if (+b.dataset.k === q.a) b.classList.add('right'); else if (+b.dataset.k === k) b.classList.add('wrong'); });
+  app.querySelector('.card').insertAdjacentHTML('beforeend', `<p class="flash ${ok ? 'ok' : 'bad'}">${ok ? '+' + p + (G.streak >= 3 ? ' 🔥' : '') : (k < 0 ? '⏰ 時間到' : '✗ 答錯')}${ok ? '' : '　正解：' + esc(q.o[q.a])}</p>`);
+  if (navigator.vibrate) navigator.vibrate(ok ? 30 : [60, 40, 60]);
+  if (G.type === 'sent' && !ok) H.speak(q.say, 0.85);
+  setTimeout(soloNext, TYPES[G.type].pause + (ok ? 0 : 500));
+}
+function soloEnd(){
+  stopTimer(); window.speechSynthesis && speechSynthesis.cancel();
+  if (G.ended) return; G.ended = true;
+  const gain = Math.round(G.score / 5), r = H.addXP(gain);
+  const acc = G.done ? Math.round(G.right / G.done * 100) : 0;
+  const wrongList = G.wrong.map(q => q.kind === 'word'
+    ? `<li><button class="say" data-say="${esc(q.say)}">🔊</button> <b>${esc(q.q)}</b>　${esc(q.o[q.a])}</li>`
+    : `<li><button class="say" data-say="${esc(q.say)}">🔊</button> ${esc(q.q.replace('______', '【' + q.o[q.a] + '】'))}<br><small class="muted">${esc(q.zh)}</small></li>`).join('');
+  app.innerHTML = `<div class="card center result stack">
+    <div class="trophy">${acc >= 90 ? '🏆' : acc >= 70 ? '🔥' : '🏀'}</div>
+    <div class="bigt">${G.score} PTS</div>
+    <p style="margin:0">答對 ${G.right} / ${G.done} 題（${acc}%）・最長連續 ${G.best} 題・<b class="ok">+${gain} XP</b></p>
+    ${r.up ? `<div class="lvup"><div style="font-size:40px">${r.up.e}</div><b>生涯晉級！</b> ${r.up.en}・${r.up.zh}</div>` : ''}
+    <div style="text-align:left">${H.careerCard()}</div>
+    ${wrongList ? `<h3 style="margin:8px 0 0;text-align:left">📝 要再複習的（${G.wrong.length}）</h3><ol class="review">${wrongList}</ol>` : (G.done ? '<p class="ok">全對！太神了 🎯</p>' : '')}
+    <button class="btn fire" id="again">再來一次</button>
+    <a class="btn" href="index.html#u${U[G.unit].id}">📖 回去讀 Unit ${U[G.unit].id}</a>
+    <button class="btn" id="back">回大廳</button>
+  </div>`;
+  bindSay();
+  $('#again').onclick = () => { type = G.type; unit = G.unit; startSolo(); };
+  $('#back').onclick = () => lobby();
+}
+
+/* ================= 1 vs 1 對戰（房主決定一切，加入者只回傳答案） ================= */
+function hostScreen(myName, tries){
+  closeNet();
+  const code = String(Math.floor(1000 + Math.random() * 9000));
+  app.innerHTML = `<div class="card center"><p class="muted">連線中…</p></div>`;
+  G = { mode: 'host', me: 'h', op: 'g', names: { h: myName, g: '' }, type, unit };
+  peer = new Peer(PREFIX + code);
+  peer.on('open', () => {
+    const url = new URL('play.html?join=' + code, location.href).href;
+    app.innerHTML = `<div class="card center stack">
+      <div class="muted">Unit ${U[unit].id}・${TYPES[type].icon} ${TYPES[type].name}</div>
+      <div style="margin:0 auto;background:#fff;padding:10px;border-radius:14px;line-height:0;width:min(260px,70vw)">${H.qrSvg(url, 5)}</div>
+      <div>房號 <span class="code">${code}</span></div>
+      <p class="muted" style="margin:0">對手用手機相機掃 QR code，或在「對戰」輸入房號。</p>
+      <p>⏳ 等待對手加入…</p>
+      <button class="btn" onclick="lobby()">取消</button></div>`;
+  });
+  peer.on('connection', c => {
+    if (conn && conn.open) { c.on('open', () => { c.send({ t: 'full' }); setTimeout(() => c.close(), 300); }); return; }
+    conn = c;
+    conn.on('data', d => onHostData(d));
+    conn.on('close', lostOpponent);
+  });
+  peer.on('error', e => {
+    if (e.type === 'unavailable-id' && (tries || 0) < 5) return hostScreen(myName, (tries || 0) + 1);
+    lobby('連線失敗（' + e.type + '）。請確認網路，或改用「同一台平板面對面」。');
+  });
+}
+function onHostData(d){
+  if (d.t === 'hello') { G.names.g = d.name || '對手'; hostStartRound(); }
+  else if (d.t === 'ans' && d.i === G.i) recordAnswer('g', d.k, d.ms);
+  else if (d.t === 'quit') hostEnd();
+}
+function joinScreen(code){
+  closeNet();
+  const saved = H.get('qx_name');
+  if (!saved) {
+    app.innerHTML = `<div class="card stack"><h3>加入房間 ${esc(code)}</h3>
+      <label>你的暱稱<input class="field" id="nm" maxlength="10" placeholder="例如：Amy"></label>
+      <button class="btn fire" id="go">加入對戰</button></div>`;
+    $('#go').onclick = () => { H.set('qx_name', $('#nm').value.trim() || '玩家'); joinScreen(code); };
+    return;
+  }
+  app.innerHTML = `<div class="card center stack"><p>🔌 正在連線到房間 <b>${esc(code)}</b>…</p>
+    <button class="btn" id="rename">改暱稱（目前：${esc(saved)}）</button></div>`;
+  $('#rename').onclick = () => { H.set('qx_name', ''); joinScreen(code); };
+  G = { mode: 'guest', me: 'g', op: 'h', names: { h: '', g: saved } };
+  peer = new Peer();
+  peer.on('open', () => {
+    conn = peer.connect(PREFIX + code, { reliable: true });
+    conn.on('open', () => {
+      conn.send({ t: 'hello', name: saved });
+      app.innerHTML = `<div class="card center stack"><div class="bigt">✅ CONNECTED</div><p class="muted">等待房主開始…</p>
+        <button class="btn" onclick="Hoops.speak('Ready!')">🔊 測試聲音</button></div>`;
+    });
+    conn.on('data', onGuestData);
+    conn.on('close', lostOpponent);
+  });
+  peer.on('error', e => {
+    params.delete('join'); history.replaceState(null, '', 'play.html?mode=battle');
+    lobby(e.type === 'peer-unavailable' ? '找不到這個房號，請確認房主的畫面還開著。' : '連線失敗（' + e.type + '）。');
+  });
+}
+function onGuestData(d){
+  if (d.t === 'full') { params.delete('join'); history.replaceState(null, '', 'play.html?mode=battle'); lobby('這個房間已經有人在對戰了。'); }
+  else if (d.t === 'start') { Object.assign(G, { type: d.type, unit: d.unit, qs: d.qs, names: { h: d.names.h, g: G.names.g }, scores: { h: 0, g: 0 }, log: [], i: -1, ended: false });
+    countdown(`${esc(G.names.h)} vs ${esc(G.names.g)}・${TYPES[G.type].name}`, () => {}); }
+  else if (d.t === 'q') { G.i = d.i; G.ans = {}; G.revealed = false; showQuestion(); startTimer(TYPES[G.type].time, null); }
+  else if (d.t === 'st') markOpponent();
+  else if (d.t === 'rv') { G.ans = d.ans; G.scores = d.scores; G.log = d.log; G.revealed = true; stopTimer(); showReveal(); }
+  else if (d.t === 'end') { G.scores = d.scores; G.log = d.log; showResult(); }
+}
+function send(m){ if (conn && conn.open) conn.send(m); }
+function closeNet(){ const c = conn, p = peer; conn = null; peer = null; try { c && c.close(); } catch(e){} try { p && p.destroy(); } catch(e){} }
+function lostOpponent(){
+  if (!conn) return; conn = null; stopTimer();
+  if (!G || G.mode === 'local' || G.ended) return;
+  app.innerHTML = `<div class="card center stack"><div class="bigt">📴 對手離線</div>
+    <button class="btn fire" onclick="params.delete('join');history.replaceState(null,'','play.html?mode=battle');lobby()">回大廳</button></div>`;
+}
+
+/* 房主／同機：流程 */
+function hostStartRound(){
+  G.type = type; G.unit = unit; G.qs = makeQuestions(unit, type);
+  G.scores = { h: 0, g: 0 }; G.log = []; G.i = -1; G.ended = false;
+  send({ t: 'start', type, unit, qs: G.qs, names: G.names });
+  countdown(`${esc(G.names.h)} vs ${esc(G.names.g)}・${TYPES[type].name}`, hostNext);
+}
+function hostNext(){
+  if (G.ended) return;
+  G.i++;
+  if (G.i >= G.qs.length) return hostEnd();
+  G.ans = {}; G.revealed = false;
+  send({ t: 'q', i: G.i });
+  showQuestion();
+  startTimer(TYPES[G.type].time, hostReveal);
+}
+function recordAnswer(who, k, ms){
+  if (G.revealed || G.ans[who]) return;
+  G.ans[who] = { k, ms };
+  if (G.mode === 'host') { if (who === 'g') markOpponent(); else send({ t: 'st' }); }
+  if (G.mode === 'local') { const s = app.querySelector(`.half[data-who="${who}"] .lst`); if (s) s.textContent = '✓ 已作答'; }
+  if (G.ans.h && G.ans.g) setTimeout(hostReveal, 300);
+}
+function hostReveal(){
+  if (G.revealed || G.ended) return;
+  G.revealed = true; stopTimer();
+  const q = G.qs[G.i], pts = {};
+  ['h', 'g'].forEach(w => { const a = G.ans[w]; pts[w] = a ? points(G.type, a.k === q.a, a.ms) : 0; G.scores[w] += pts[w]; });
+  G.log.push({ i: G.i, ans: G.ans, pts });
+  send({ t: 'rv', i: G.i, ans: G.ans, scores: G.scores, log: G.log });
+  showReveal();
+  setTimeout(hostNext, TYPES[G.type].pause + 400);
+}
+function hostEnd(){
+  if (G.ended) return;
+  stopTimer(); send({ t: 'end', scores: G.scores, log: G.log }); showResult();
+}
+function quitRound(){ if (G.mode === 'guest') send({ t: 'quit' }); else hostEnd(); }
+
+/* 單人畫面（網路對戰） */
+function scoreBar(){
+  return `<div class="score">
+    <div class="p p1"><div class="n">${esc(G.names[G.me])}（你）</div><div class="s">${G.scores[G.me]}</div></div>
+    <div class="vs">VS</div>
+    <div class="p p2"><div class="n">${esc(G.names[G.op])}</div><div class="s">${G.scores[G.op]}</div><div class="st" id="opst"></div></div></div>`;
+}
+function showQuestion(){
+  if (G.mode === 'local') return showSplit();
+  const q = G.qs[G.i];
+  app.innerHTML = scoreBar() + qCard(q, G.i, G.qs.length) + `<div class="center"><button class="btn sm" id="quit">結束結算</button></div>`;
+  bindSay(); $('#quit').onclick = quitRound;
+  if (q.kind === 'word') H.speak(q.say);
+  app.querySelectorAll('.bopts button').forEach(b => b.onclick = () => {
+    const k = +b.dataset.k, ms = Math.round(performance.now() - G.t0);
+    app.querySelectorAll('.bopts button').forEach(x => x.disabled = true);
+    b.classList.add('pick');
+    if (G.mode === 'host') recordAnswer('h', k, ms);
+    else { send({ t: 'ans', i: G.i, k, ms }); G.ans[G.me] = { k, ms }; }
+  });
+}
+function markOpponent(){ const s = $('#opst'); if (s) s.textContent = '✓ 已作答'; }
+function showReveal(){
+  if (G.mode === 'local') return revealSplit();
+  const q = G.qs[G.i], sb = app.querySelector('.score');
+  if (!sb) return;
+  sb.outerHTML = scoreBar();
+  app.querySelectorAll('.bopts button').forEach(b => { b.disabled = true; const k = +b.dataset.k, tags = [];
+    if (k === q.a) b.classList.add('right');
+    if (G.ans[G.me] && G.ans[G.me].k === k) { tags.push('你'); if (k !== q.a) b.classList.add('wrong'); }
+    if (G.ans[G.op] && G.ans[G.op].k === k) tags.push('對手');
+    b.querySelector('.who').textContent = tags.join('・'); });
+  const last = G.log[G.log.length - 1], p = last ? last.pts[G.me] : 0;
+  app.querySelector('.card').insertAdjacentHTML('beforeend', `<p class="flash ${p ? 'ok' : 'bad'}">${p ? '答對！ +' + p : (G.ans[G.me] ? '答錯了' : '⏰ 時間到')}</p>`);
+  if (navigator.vibrate) navigator.vibrate(p ? 30 : [60, 40, 60]);
+}
+
+/* 同機分割 */
+function startLocal(){
+  closeNet();
+  G = { mode: 'local', names: { h: '藍隊', g: '橘隊' } };
+  hostStartRound();
+}
+function half(who){
+  const q = G.qs[G.i];
+  return `<div class="half ${who === 'g' ? 'flip' : ''}" data-who="${who}">
+    <div class="lbl">${who === 'h' ? '🔵' : '🟠'} ${G.names[who]}　${G.scores[who]} 分　<span class="lst"></span></div>
+    ${q.kind === 'word' ? `<div class="word">${esc(q.q)}</div>` : `<div class="bq">${esc(q.q)}</div><div class="bzh">🀄 ${esc(q.zh)}</div>`}
+    <div class="bopts">${q.o.map((o,k)=>`<button data-k="${k}"><b>${L[k]}.</b> ${esc(o)}</button>`).join('')}</div></div>`;
+}
+function showSplit(){
+  const q = G.qs[G.i];
+  $('#hdr').style.display = 'none';
+  app.innerHTML = `<div class="split">${half('g')}
+    <div class="mid"><span>${G.i + 1}/${G.qs.length}</span><button class="say" data-say="${esc(q.say)}">🔊</button>
+      <div class="timer" style="flex:1;margin:0"><i></i></div><span><span class="tleft">${TYPES[G.type].time}</span>s</span>
+      <button class="btn sm" id="quit">結束</button></div>
+    ${half('h')}</div>`;
+  bindSay(); $('#quit').onclick = hostEnd;
+  if (q.kind === 'word') H.speak(q.say);
+  app.querySelectorAll('.half').forEach(h => h.querySelectorAll('button').forEach(b => b.onclick = () => {
+    h.querySelectorAll('button').forEach(x => x.disabled = true);
+    b.classList.add('pick');
+    recordAnswer(h.dataset.who, +b.dataset.k, Math.round(performance.now() - G.t0));
+  }));
+}
+function revealSplit(){
+  const q = G.qs[G.i], last = G.log[G.log.length - 1];
+  app.querySelectorAll('.half').forEach(h => {
+    const who = h.dataset.who, a = G.ans[who];
+    h.querySelectorAll('button').forEach(b => { b.disabled = true; const k = +b.dataset.k;
+      if (k === q.a) b.classList.add('right'); else if (a && a.k === k) b.classList.add('wrong'); });
+    h.querySelector('.lst').innerHTML = last.pts[who] ? `<b class="ok">+${last.pts[who]}</b>` : `<b class="bad">${a ? '答錯' : '時間到'}</b>`;
+  });
+}
+
+/* 結果 */
+function showResult(){
+  stopTimer(); window.speechSynthesis && speechSynthesis.cancel();
+  G.ended = true;
+  $('#hdr').style.display = '';
+  const s = G.scores, local = G.mode === 'local', me = local ? 'h' : G.me, op = local ? 'g' : G.op;
+  let title, xpLine = '';
+  if (s.h === s.g) title = '🤝 平手！';
+  else if (local) title = (s.h > s.g ? '🔵 ' + G.names.h : '🟠 ' + G.names.g) + ' 獲勝！';
+  else title = s[me] > s[op] ? '🏆 你贏了！' : '💪 再接再厲！';
+  if (!local) {
+    const gain = Math.round(s[me] / 5) + (s[me] > s[op] ? 30 : 0), r = H.addXP(gain);
+    xpLine = `<p style="margin:0"><b class="ok">+${gain} XP</b>${s[me] > s[op] ? '（含勝利加成 30）' : ''}</p>` +
+      (r.up ? `<div class="lvup"><div style="font-size:40px">${r.up.e}</div><b>生涯晉級！</b> ${r.up.en}・${r.up.zh}</div>` : '');
+  }
+  const rows = G.log.map(lg => {
+    const q = G.qs[lg.i], mk = w => lg.pts[w] ? '<span class="ok">✓</span>' : '<span class="bad">✗</span>';
+    const text = q.kind === 'word' ? `<b>${esc(q.q)}</b>　${esc(q.o[q.a])}` : esc(q.q.replace('______', '【' + q.o[q.a] + '】'));
+    return `<li>${text}<br><small class="muted">${local ? G.names.h : '你'} ${mk(me)}　${local ? G.names.g : esc(G.names[op])} ${mk(op)}</small></li>`;
+  }).join('');
+  const hostSide = G.mode !== 'guest';
+  app.innerHTML = `<div class="card center result stack">
+    <div class="trophy">${s.h === s.g ? '🤝' : (local || s[me] > s[op]) ? '🏆' : '🏀'}</div>
+    <div class="bigt">${title}</div>
+    <div class="score" style="max-width:420px;margin:0 auto;width:100%">
+      <div class="p p1"><div class="n">${esc(G.names[me])}</div><div class="s">${s[me]}</div></div><div class="vs">VS</div>
+      <div class="p p2"><div class="n">${esc(G.names[op])}</div><div class="s">${s[op]}</div></div></div>
+    ${xpLine}
+    ${rows ? `<ol class="review">${rows}</ol>` : ''}
+    ${hostSide ? `<div class="seg" id="typeSeg2">${Object.keys(TYPES).map(k => `<button data-v="${k}" class="${k === G.type ? 'on' : ''}"><b>${TYPES[k].icon} ${TYPES[k].name}</b></button>`).join('')}</div>
+      <select class="field" id="un2">${U.map((u,i)=>`<option value="${i}" ${i===G.unit?'selected':''}>Unit ${u.id}｜${esc(u.title)}</option>`).join('')}</select>
+      <button class="btn fire" id="again">再來一輪</button>` : `<p class="muted">等待房主開始下一輪…</p>`}
+    <button class="btn" id="bye">結束對戰</button></div>`;
+  if (hostSide) {
+    type = G.type; unit = G.unit;
+    document.querySelectorAll('#typeSeg2 button').forEach(b => b.onclick = () => { type = b.dataset.v; document.querySelectorAll('#typeSeg2 button').forEach(x => x.classList.toggle('on', x === b)); });
+    $('#un2').onchange = e => unit = +e.target.value;
+    $('#again').onclick = () => hostStartRound();
+  }
+  $('#bye').onclick = () => { params.delete('join'); history.replaceState(null, '', 'play.html?mode=battle'); lobby(); };
+}
+
+lobby();
+</script>
+</body>
+</html>

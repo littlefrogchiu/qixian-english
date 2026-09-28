@@ -3,151 +3,144 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>七賢英語閱讀</title>
-<meta name="description" content="七賢國中 C→B 級英語閱讀、文法與單字對戰：七上到八下 12 單元">
-<link rel="stylesheet" href="style.css?v=2">
+<title>Qixian Hoops English</title>
+<meta name="description" content="七賢國中籃球隊英語：12 單元閱讀、文法、延伸影片，加上單字晉級與 1 vs 1 對戰">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@400;700;900&display=swap">
+<link rel="stylesheet" href="style.css?v=3">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏀</text></svg>">
 </head>
 <body>
-<header class="top">
-  <div class="wrap row">
-    <div>
-      <h1>七賢英語閱讀・文法・對戰</h1>
-      <p>會考 C → B 銜接｜七上～八下 12 單元｜康軒版字詞範圍</p>
-    </div>
-    <div class="noprint" style="display:flex;gap:8px;flex-wrap:wrap">
-      <a class="btn ghost" href="battle.html">⚔️ 單字對戰</a>
-      <button class="btn ghost" id="printAll">🖨️ 列印全部</button>
-    </div>
-  </div>
-</header>
+<header class="bar"><div class="wrap">
+  <a class="logo" href="index.html">QIXIAN <b>HOOPS</b></a>
+  <nav><a href="#study" class="on">📖 教材</a><a href="play.html?mode=solo">🏀 晉級</a><a href="play.html?mode=battle">⚔️ 對戰</a></nav>
+</div></header>
 
-<div class="wrap">
-  <nav class="tabs" id="tabs"></nav>
+<main class="wrap">
+  <section class="hero">
+    <h1>READ. PLAY.<span>LEVEL UP.</span></h1>
+    <p>七賢籃球隊英文｜七上～八下 12 單元｜會考 C → B</p>
+  </section>
+
+  <div class="card" id="career"></div>
+
+  <div class="modes">
+    <a class="mode" href="#study"><div class="big">📖</div><h3>STUDY</h3><p>讀文章、看中譯、練文法，還有 NBA 延伸影片。</p></a>
+    <a class="mode" href="play.html?mode=solo" id="goSolo"><div class="big">🏀</div><h3>SOLO CAREER</h3><p>一個人練單字，累積 XP，從玩具球寶寶一路打到名人堂。</p></a>
+    <a class="mode" href="play.html?mode=battle" id="goBattle"><div class="big">⚔️</div><h3>1 VS 1</h3><p>掃 QR code 跟同學對戰，答對越快分數越高。</p></a>
+  </div>
+
+  <h2 class="sec-title" id="study" style="margin-top:28px">STUDY ・ 選單元</h2>
+  <nav class="units" id="units"></nav>
   <div id="view"></div>
-  <div id="printView" class="printonly"></div>
+
   <p class="foot">
-    等級對應參考：國中教育會考英語科閱讀「基礎」等級描述——能理解所學字詞的基本意義、基本句型，並能理解與自身經驗相關、敘述直接的日常生活文章，擷取明確陳述的重要訊息。<br>
-    字詞範圍擷取自康軒版七上～八下課本後附錄字詞例句表；文法依「三年文法架構」。文章中的人物與情節為教學用虛構內容。
+    等級參考：國中教育會考英語科閱讀「基礎」等級——能理解所學字詞的基本意義、基本句型，並能理解與自身經驗相關、敘述直接的日常生活文章，擷取明確陳述的重要訊息。<br>
+    字詞範圍取自康軒版七上～八下課本後附錄字詞例句表；文法依「三年文法架構」。文章人物與情節為教學用虛構內容。影片來自 YouTube 各官方頻道，播放時可開 CC 字幕並選「自動翻譯 → 中文（繁體）」。
   </p>
-</div>
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-<script src="vocab.js?v=2"></script>
-<script src="data.js?v=2"></script>
+<script src="vocab.js?v=3"></script>
+<script src="vocabtools.js?v=3"></script>
+<script src="data.js?v=3"></script>
+<script src="extra.js?v=3"></script>
+<script src="videos.js?v=3"></script>
+<script src="common.js?v=3"></script>
 <script>
-const $ = s => document.querySelector(s);
-const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const L = 'ABCD';
+const H = window.Hoops, esc = H.esc, L = 'ABCD', $ = s => document.querySelector(s);
+$('#career').innerHTML = H.careerCard();
 
-function vocabRegex(i){
-  const keys = new Set();
-  VOCAB[i].forEach(v => alts(v).forEach(k => { if (k.length > 1 && !/^-/.test(k)) keys.add(k); }));
-  const list = [...keys].sort((a,b)=>b.length-a.length).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\s+/g,'\\s+'));
-  return new RegExp("\\b(" + list.join('|') + ")(s|es|d|ed|ing|er|est|ly|'s)?\\b", 'gi');
-}
-// 'take / took action' → ['take action', 'took action']
-function alts(v){
-  const a = v.replace(/\(.*?\)/g,'').split('/').map(k => k.replace(/[?.!]/g,'').trim()).filter(Boolean);
-  if (a.length === 2 && !a[0].includes(' ') && a[1].includes(' ')) a[0] += ' ' + a[1].split(' ').slice(1).join(' ');
-  return a;
-}
-function wordCount(u){ return u.article.join(' ').split(/\s+/).filter(Boolean).length; }
-function coverage(i){
-  const re = vocabRegex(i), text = UNITS[i].article.join(' ');
-  const hit = new Set(); let m;
-  while ((m = re.exec(text))) hit.add(m[1].toLowerCase());
-  let n = 0;
-  VOCAB[i].forEach(v => { if (alts(v).some(a => hit.has(a.toLowerCase()))) n++; });
-  return n;
-}
-function mcq(q, opts, ans, explain, tag){
-  const id = 'q' + Math.random().toString(36).slice(2,8);
-  return `<div class="mcq" id="${id}" data-a="${ans}">
-    <div class="q">${tag?`<span class="tag">${tag}</span>`:''}${esc(q)}</div>
+function mcq(q, opts, ans, explain, tag, cls){
+  return `<div class="mcq" data-a="${ans}">
+    <div class="q">${tag ? `<span class="tag ${cls||''}">${tag}</span>` : ''}${esc(q)}</div>
     <div class="opts">${opts.map((o,k)=>`<button data-k="${k}"><b>(${L[k]})</b>${esc(o)}</button>`).join('')}</div>
-    <div class="explain">答案 (${L[ans]})｜${explain}</div></div>`;
+    ${explain ? `<div class="explain">答案 (${L[ans]})｜${explain}</div>` : `<div class="explain">答案 (${L[ans]})</div>`}</div>`;
 }
-function battleUrl(id){ return new URL('battle.html?u=' + id, location.href).href; }
-function qrSvg(text, cell){ const q = qrcode(0,'M'); q.addData(text); q.make(); return q.createSvgTag({cellSize:cell||4, margin:2, scalable:true}); }
+const zhHTML = s => esc(s).replace(/\{(.*?)\}/g, '<u>$1</u>');
+const wc = u => u.article.join(' ').split(/\s+/).filter(Boolean).length;
 
-function unitHTML(u, i, forPrint){
-  const re = vocabRegex(i);
-  const art = u.article.map(p => '<p>' + esc(p).replace(re, '<mark>$&</mark>') + '</p>').join('');
+function unitHTML(u, i){
+  const re = VocabTools.vocabRegex(VOCAB[i], u.id);
+  const art = u.article.map(p => '<p>' + esc(p).replace(re, '<u>$&</u>') + '</p>').join('');
   const g = u.grammar.map((x,k) => `<div class="gram">
       <h3>文法 ${k+1}｜${x.t}</h3>
       <p class="d">${x.d}</p>
       <ul>${x.ex.map(e=>`<li>${e}</li>`).join('')}</ul>
-      ${mcq(x.q, x.o, x.a, x.why, '練習')}
+      ${mcq(x.q, x.o, x.a, x.why, '基本題')}
+      ${mcq(x.q2.q, x.q2.o, x.q2.a, '', '會考題', 'cap')}
     </div>`).join('');
-  return `<section class="unitblock">
-  <div class="card">
-    <h2>Unit ${u.id}｜${esc(u.title)}</h2>
-    <div class="meta">
-      <span class="chip">${u.book} ${u.lessons}</span>
-      <span class="chip lv">會考 ${u.level}</span>
-      <span class="chip">${u.genre}</span>
-      <span class="chip">${wordCount(u)} words</span>
-      <span class="chip">本單元字詞 ${coverage(i)} / ${VOCAB[i].length}</span>
-    </div>
+  const vids = (VIDEOS[u.id] || []).map(v => `<div class="vid">
+      <div class="frame" data-id="${v.id}"><img loading="lazy" alt="" src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg"><div class="play">▶️</div></div>
+      <h4>${esc(v.title)}</h4><p>${esc(v.ch)}｜${esc(v.why)}</p></div>`).join('');
+  const playUrl = new URL('play.html?mode=battle&u=' + u.id, location.href).href;
+  return `
+  <div class="card uhead">
+    <h2>UNIT ${u.id} ・ ${esc(u.title)}</h2>
+    <div class="meta"><span class="chip">${u.book} ${u.lessons}</span><span class="chip hot">會考 ${u.level}</span>
+      <span class="chip">${u.genre}</span><span class="chip">${wc(u)} words</span><span class="chip">單字 ${VOCAB[i].length} 個</span></div>
     <div class="scope">文法範圍：${u.grammarScope}</div>
   </div>
   <div class="card">
-    <div class="artbar"><span>📖 Reading</span>
-      <label class="toggle"><input type="checkbox" class="hl" checked> 標示本單元單字</label></div>
-    <div class="article">${art}</div>
+    <div class="tools">
+      <button class="btn sm" id="readAll">🔊 朗讀全文</button>
+      <button class="btn sm" id="stopRead">⏹ 停止</button>
+      <label class="toggle" style="margin-left:auto"><input type="checkbox" id="hl" checked> 課本單字畫底線</label>
+    </div>
+    <div class="article" id="art">${art}</div>
   </div>
   <div class="card">
-    <h3>閱讀測驗　<span class="chip">${u.reading.type}</span></h3>
+    <h3>閱讀測驗 <span class="chip">${u.reading.type}</span></h3>
     ${mcq(u.reading.q, u.reading.o, u.reading.a, u.reading.ex)}
   </div>
   <div class="card">
-    <h3 style="margin-bottom:12px">重點文法</h3>
-    ${g}
+    <details><summary style="cursor:pointer;font-weight:800">🀄 看中文翻譯（先自己讀懂再打開！）</summary>
+      <div class="zh" id="zh" style="margin-top:12px">${u.zh.map(p=>'<p>'+zhHTML(p)+'</p>').join('')}</div></details>
   </div>
-  ${forPrint ? printKey(u) : `<div class="card noprint">
-    <h3>⚔️ 單字對戰 1 vs 1</h3>
+  <div class="card"><h2 class="sec-title">GRAMMAR ・ 重點文法</h2>${g}</div>
+  <div class="card"><h2 class="sec-title">WATCH ・ 延伸影片</h2>
+    <p class="muted" style="margin-top:0;font-size:13px">點縮圖播放。字幕：按 CC → ⚙️ → 字幕 → 自動翻譯 → 中文（繁體）。</p>
+    <div class="vids">${vids}</div></div>
+  <div class="card"><h2 class="sec-title">PLAY ・ 本單元遊戲</h2>
     <div class="qrbox">
-      <div class="qr">${qrSvg(battleUrl(u.id))}</div>
-      <div>
-        <p style="margin:0 0 8px">用手機或平板掃描 QR code 進入本單元對戰：一輪 5 題（4 題出自本篇文章＋1 題單字應用）。</p>
-        <a class="btn primary" href="battle.html?u=${u.id}">開始 Unit ${u.id} 對戰</a>
+      <div class="qr">${H.qrSvg(playUrl)}</div>
+      <div class="stack" style="flex:1;min-width:200px">
+        <a class="btn fire" href="play.html?mode=solo&u=${u.id}">🏀 個人晉級：Unit ${u.id}</a>
+        <a class="btn" href="play.html?mode=battle&u=${u.id}">⚔️ 1 vs 1 對戰：Unit ${u.id}</a>
+        <span class="muted" style="font-size:13px">手機掃 QR code 直接進入本單元對戰。</span>
       </div>
-    </div>
-  </div>`}
-  </section>`;
+    </div></div>`;
 }
-function printKey(u){
-  const all = [u.reading.a, ...u.grammar.map(g=>g.a)].map(a=>'('+L[a]+')');
-  return `<div class="card"><b>解答</b>　閱讀：${all[0]}　文法 1：${all[1]}　文法 2：${all[2]}　文法 3：${all[3]}</div>`;
-}
-function bind(root){
-  root.querySelectorAll('.mcq').forEach(box => box.querySelectorAll('.opts button').forEach(b => b.onclick = () => {
+function bind(u){
+  document.querySelectorAll('.mcq').forEach(box => box.querySelectorAll('.opts button').forEach(b => b.onclick = () => {
     if (box.classList.contains('answered')) return;
     const a = +box.dataset.a, k = +b.dataset.k;
     box.classList.add('answered');
     box.querySelectorAll('.opts button').forEach(x => { x.disabled = true; if (+x.dataset.k === a) x.classList.add('right'); });
     if (k !== a) b.classList.add('wrong');
   }));
-  root.querySelectorAll('.hl').forEach(c => c.onchange = () =>
-    c.closest('.card').querySelector('.article').classList.toggle('nomark', !c.checked));
+  $('#hl').onchange = e => { $('#art').classList.toggle('plain', !e.target.checked); $('#zh').classList.toggle('plain', !e.target.checked); };
+  $('#readAll').onclick = () => H.speak(u.article.join(' '), 0.85);
+  $('#stopRead').onclick = () => window.speechSynthesis && speechSynthesis.cancel();
+  document.querySelectorAll('.vid .frame').forEach(f => f.onclick = () => {
+    f.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${f.dataset.id}?autoplay=1&cc_load_policy=1&cc_lang_pref=zh-Hant&hl=zh-TW&rel=0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+  });
 }
 function show(i){
+  window.speechSynthesis && speechSynthesis.cancel();
   $('#view').innerHTML = unitHTML(UNITS[i], i);
-  bind($('#view'));
-  document.querySelectorAll('#tabs button').forEach((b,k)=>b.classList.toggle('on', k===i));
+  bind(UNITS[i]);
+  document.querySelectorAll('#units button').forEach((b,k)=>b.classList.toggle('on', k===i));
   history.replaceState(null, '', '#u' + (i+1));
+  $('#goSolo').href = 'play.html?mode=solo&u=' + (i+1);
+  $('#goBattle').href = 'play.html?mode=battle&u=' + (i+1);
 }
-$('#tabs').innerHTML = UNITS.map((u,i)=>`<button data-i="${i}">Unit ${u.id}<small>${u.book} ${u.lessons}</small></button>`).join('');
-$('#tabs').onclick = e => { const b = e.target.closest('button'); if (b) { show(+b.dataset.i); window.scrollTo({top:0}); } };
-const start = Math.min(11, Math.max(0, (parseInt((location.hash.match(/u(\d+)/)||[])[1]) || 1) - 1));
-show(start);
-$('#printAll').onclick = () => {
-  if (!$('#printView').innerHTML) $('#printView').innerHTML = UNITS.map((u,i)=>unitHTML(u,i,true)).join('');
-  $('#view').classList.add('noprint');
-  window.print();
-  $('#view').classList.remove('noprint');
-};
+$('#units').innerHTML = UNITS.map((u,i)=>`<button data-i="${i}"><b>UNIT ${u.id}</b><small>${u.book} ${u.lessons}</small></button>`).join('');
+$('#units').onclick = e => { const b = e.target.closest('button'); if (b) { show(+b.dataset.i); $('#study').scrollIntoView({behavior:'smooth'}); } };
+const m = location.hash.match(/u(\d+)/);
+show(Math.min(11, Math.max(0, (m ? +m[1] : 1) - 1)));
+if (m) setTimeout(() => $('#study').scrollIntoView(), 50);
 </script>
 </body>
 </html>

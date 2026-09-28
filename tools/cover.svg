@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1000" width="1200" height="1000">
+  <rect width="1200" height="1000" fill="#ffffff"/>
+  <!-- speed lines -->
+  <g stroke="#000" stroke-linecap="round">
+    <line x1="60" y1="330" x2="330" y2="330" stroke-width="14"/>
+    <line x1="120" y1="400" x2="300" y2="400" stroke-width="10"/>
+    <line x1="30" y1="470" x2="290" y2="470" stroke-width="18"/>
+    <line x1="110" y1="540" x2="300" y2="540" stroke-width="8"/>
+    <line x1="60" y1="610" x2="320" y2="610" stroke-width="12"/>
+  </g>
+  <!-- flames (outline + gray layers) -->
+  <path d="M600 930 C 380 930 280 780 300 640 C 320 520 400 470 380 360 C 460 420 470 480 470 520 C 490 400 560 320 540 180 C 640 260 700 360 690 470 C 730 420 760 380 750 300 C 850 400 900 520 880 650 C 870 800 780 930 600 930 Z" fill="#d9d9d9" stroke="#000" stroke-width="10" stroke-linejoin="round"/>
+  <path d="M600 900 C 450 900 380 800 390 700 C 400 610 460 580 450 500 C 510 540 520 590 515 630 C 545 540 590 480 580 380 C 650 450 680 530 670 600 C 700 570 720 540 715 490 C 780 570 800 650 790 720 C 780 830 720 900 600 900 Z" fill="#8c8c8c"/>
+  <!-- basketball -->
+  <circle cx="600" cy="640" r="240" fill="#ffffff" stroke="#000" stroke-width="14"/>
+  <circle cx="600" cy="640" r="240" fill="none" stroke="#000" stroke-width="0"/>
+  <g fill="none" stroke="#000" stroke-width="12" stroke-linecap="round">
+    <line x1="600" y1="400" x2="600" y2="880"/>
+    <line x1="360" y1="640" x2="840" y2="640"/>
+    <path d="M430 470 C 520 560 520 720 430 810"/>
+    <path d="M770 470 C 680 560 680 720 770 810"/>
+  </g>
+  <!-- shine -->
+  <path d="M470 470 C 500 440 540 425 575 420" fill="none" stroke="#000" stroke-width="8" stroke-linecap="round" opacity=".35"/>
+  <!-- motion arcs -->
+  <g fill="none" stroke="#000" stroke-width="10" stroke-linecap="round">
+    <path d="M900 470 C 960 520 980 600 960 680"/>
+    <path d="M950 430 C 1030 500 1050 610 1020 720"/>
+  </g>
+  <!-- stars / sparks -->
+  <g fill="#000">
+    <path d="M1010 250 l14 36 38 2 -30 24 10 37 -32 -21 -32 21 10 -37 -30 -24 38 -2z"/>
+    <path d="M200 200 l9 23 25 1 -19 16 6 24 -21 -14 -21 14 6 -24 -19 -16 25 -1z"/>
+    <circle cx="930" cy="170" r="10"/><circle cx="300" cy="110" r="8"/><circle cx="1100" cy="380" r="9"/>
+  </g>
+</svg>

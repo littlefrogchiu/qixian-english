@@ -1,7 +1,9 @@
-# 七賢英語閱讀・文法・對戰
+# Qixian Hoops English（七賢籃球英語）
 
-會考 C → B 銜接教材（康軒版七上～八下，兩課一單元，共 12 單元）。
+會考 C → B 銜接教材與遊戲（康軒版七上～八下，兩課一單元，共 12 單元）。網站：https://littlefrogchiu.github.io/qixian-english/
 
-- `docs/index.html`：12 篇文章、閱讀測驗、重點文法與練習題；可列印全部（附解答）
-- `docs/battle.html`：1 vs 1 單字對戰（掃 QR code 連線，或同一台平板面對面）
-- `docs/data.js`：所有文章與題目；`docs/vocab.js`：各單元課本字詞
+- `docs/index.html`：首頁（生涯等級）＋ 12 單元教材：文章（課本單字底線）、朗讀、閱讀測驗、中譯、重點文法（基本題＋會考題）、延伸影片
+- `docs/play.html`：遊戲。個人晉級／1 vs 1 對戰 × 單字英翻中（10 秒、發音、全部單字、可隨時結算）／例句填空（25 秒、中譯、整句發音、5 題）
+- `docs/battle.html`：舊網址轉址
+- 資料：`data.js`（文章與題目）、`extra.js`（中譯、會考題、例句中譯）、`words.js`（單字中文）、`vocab.js`＋`vocabtools.js`（底線比對）、`videos.js`
+- `tools/makedoc.js`：產生 Word 教材（學生版／教師版）到桌面課程資料夾
