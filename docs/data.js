@@ -25,12 +25,12 @@ window.UNITS = [
     { t: '人稱代名詞：主格 vs. 所有格',
       d: '主格當主詞放句首：I / you / he / she / it / we / they。所有格後面一定接名詞：my / your / his / her / its / our / their。',
       ex: ['<b>He</b> is my cousin.（主格）', 'My uncle is a farmer, and <b>his</b> wife is a doctor.（所有格＋名詞）'],
-      q: 'Mr. and Mrs. Lin are nice. ______ son is a doctor.', o: ['They', 'Their', 'His', 'Her'], a: 1,
+      q: 'Mr. and Mrs. Lin are nice. ______ son is a doctor.', o: ['They', 'His', 'Their', 'Her'], a: 2,
       why: '空格後接名詞 son，要用所有格；Mr. and Mrs. Lin 是兩個人，用 Their。' },
     { t: 'be 動詞：am / is / are 與單複數',
       d: 'I → am；he / she / it／單數名詞 → is；you / we / they／複數名詞 → are。A and B 當主詞是複數。',
       ex: ['My dad <b>is</b> a cook.', 'Leo and I <b>are</b> different in size.'],
-      q: 'My uncle and his wife ______ farmers.', o: ['am', 'is', 'are', 'be'], a: 2,
+      q: 'My uncle and his wife ______ farmers.', o: ['am', 'is', 'be', 'are'], a: 3,
       why: 'My uncle and his wife 是兩個人（複數），be 動詞用 are。' },
     { t: 'Who / What 問句（含 How old 問年齡）',
       d: 'Who 問「人是誰」；What 問「東西、名字、是什麼」；How old 問年齡 → I\'m / He\'s … years old。',
@@ -69,15 +69,15 @@ window.UNITS = [
   reading: {
     type: '主旨大意',
     q: 'What is the reading mainly about?',
-    o: ['Where our school is and some rules for the road and the museum', 'How to design a museum', 'Why students can\'t use smartphones at school', 'How to take good photos in the museum'],
-    a: 0,
-    ex: '第一段講學校位置，第二段是上學路上的安全規則，第三段是美術館的規矩，(A) 涵蓋全文。'
+    o: ['How to design a museum', 'Where our school is and some rules for the road and the museum', 'Why students can\'t use smartphones at school', 'How to take good photos in the museum'],
+    a: 1,
+    ex: '第一段講學校位置，第二段是上學路上的安全規則，第三段是美術館的規矩，(B) 涵蓋全文。'
   },
   grammar: [
     { t: 'Where 問答與位置介系詞',
       d: 'Where is / are + 主詞？回答 It\'s / They\'re + 位置：in、near、next to、between A and B、in front of、behind、beside。',
       ex: ['<b>Where</b> is it? — It\'s <b>near</b> the Kaohsiung Museum of Fine Arts.'],
-      q: 'A: ______ is your smartphone?  B: It\'s between the bag and the book.', o: ['What', 'Who', 'Where', 'How old'], a: 2,
+      q: 'A: ______ is your smartphone?  B: It\'s between the bag and the book.', o: ['What', 'Who', 'How old', 'Where'], a: 3,
       why: '回答的是位置（between…），用 Where 問。' },
     { t: '祈使句：Please / Don\'t / Let\'s + 原形動詞',
       d: '祈使句省略主詞 you，動詞用原形。否定：Don\'t + 原形；提議：Let\'s + 原形；加 please 更有禮貌。be 動詞的祈使句用 Be / Don\'t be。',
@@ -121,15 +121,15 @@ window.UNITS = [
   reading: {
     type: '主旨・標題',
     q: 'What is the best title for the reading?',
-    o: ['A Birthday Party for Mr. Chen', 'A Basketball Game on Friday', 'Sandwiches on the Sports Field', 'A Day in the Library'],
-    a: 0,
+    o: ['A Basketball Game on Friday', 'Sandwiches on the Sports Field', 'A Birthday Party for Mr. Chen', 'A Day in the Library'],
+    a: 2,
     ex: '女生在準備派對、男生把陳老師帶到教室，整篇都圍繞陳老師的生日驚喜。'
   },
   grammar: [
     { t: '現在進行式：be 動詞 ＋ V-ing',
       d: '表示「此刻正在做」。常搭配 now、Look!、Listen!。動詞變化：put → putting、shine → shining、work → working。',
       ex: ['The sun <b>is</b> still <b>shining</b>.', 'They<b>\'re putting</b> sandwiches on the table.'],
-      q: 'Look! The girls ______ sandwiches on the table.', o: ['put', 'are putting', 'is putting', 'putting'], a: 1,
+      q: 'Look! The girls ______ sandwiches on the table.', o: ['are putting', 'put', 'is putting', 'putting'], a: 0,
       why: 'Look! 表示正在發生；主詞 The girls 複數 → are putting（put 重複 t 再加 ing）。' },
     { t: 'What time / What day 問答',
       d: 'What time is it? → It\'s six o\'clock / six p.m.（問幾點）；What day is it today? → It\'s Friday.（問星期幾）',
@@ -139,7 +139,7 @@ window.UNITS = [
     { t: 'There is / There are（有…）',
       d: 'There is ＋ 單數名詞；There are ＋ 複數名詞，表示「某處有…」。疑問句把 is / are 放句首：Is there…? / Are there…?',
       ex: ['<b>There are</b> a lot of students on the sports field.'],
-      q: 'There ______ two basketball courts next to the gym.', o: ['are', 'is', 'am', 'be'], a: 0,
+      q: 'There ______ two basketball courts next to the gym.', o: ['is', 'am', 'be', 'are'], a: 3,
       why: 'two basketball courts 是複數，用 There are。' }
   ],
   battle: {
@@ -173,25 +173,25 @@ window.UNITS = [
   reading: {
     type: '細節理解',
     q: 'Which is TRUE about Jay?',
-    o: ['He often plays video games at night.', 'He practices basketball twice a day.', 'He never helps with the housework.', 'His team always wins.'],
-    a: 1,
-    ex: '文中說他每天早上練球，放學後又練兩小時 → 一天練兩次。(A)(C)(D) 都與文意相反。'
+    o: ['He often plays video games at night.', 'He never helps with the housework.', 'His team always wins.', 'He practices basketball twice a day.'],
+    a: 3,
+    ex: '文中說他每天早上練球，放學後又練兩小時 → 一天練兩次。(A)(B)(C) 都與文意相反。'
   },
   grammar: [
     { t: '現在簡單式：第三人稱單數動詞加 -s / -es',
       d: '表示習慣或經常發生的事。主詞是 he / she / it／單數名詞時，動詞加 s；字尾 s, sh, ch, x, o 加 es（wash → washes、do → does）；子音 + y 改 ies（study → studies）；have → has。',
       ex: ['He <b>washes</b> his face and <b>brushes</b> his teeth.', 'The team <b>has</b> a game once or twice a month.'],
-      q: 'Jay ______ his teeth every morning.', o: ['brush', 'brushs', 'brushes', 'brushing'], a: 2,
+      q: 'Jay ______ his teeth every morning.', o: ['brush', 'brushes', 'brushs', 'brushing'], a: 1,
       why: 'Jay 是第三人稱單數，brush 字尾 sh → brushes。' },
     { t: '頻率副詞的位置',
       d: 'always > usually > often > sometimes > seldom > never。放在 be 動詞／助動詞之後、一般動詞之前。',
       ex: ['He <b>seldom plays</b> video games.', 'We <b>sometimes lose</b>, but we <b>always have</b> fun!'],
-      q: 'Which sentence is correct?', o: ['Jay plays seldom video games.', 'Jay seldom plays video games.', 'Jay always is late.', 'Jay is never do his homework.'], a: 1,
+      q: 'Which sentence is correct?', o: ['Jay plays seldom video games.', 'Jay always is late.', 'Jay seldom plays video games.', 'Jay is never do his homework.'], a: 2,
       why: '頻率副詞放在一般動詞 plays 之前；be 動詞則放在 is 之後（Jay is always late）。' },
     { t: 'How often…? 問頻率',
       d: 'How often do / does + 主詞 + 原形動詞？回答：once / twice / three times + a day / week / month，或 every day、often…',
       ex: ['<b>How often does</b> Jay <b>play</b> video games? — He seldom plays them.'],
-      q: 'A: ______ does the team have a game?  B: About twice a month.', o: ['How much', 'How often', 'What time', 'Where'], a: 1,
+      q: 'A: ______ does the team have a game?  B: About twice a month.', o: ['How often', 'How much', 'What time', 'Where'], a: 0,
       why: '回答「一個月兩次」是頻率，用 How often。' }
   ],
   battle: {
@@ -227,20 +227,20 @@ window.UNITS = [
   reading: {
     type: '細節理解（NOT 題）',
     q: 'Which is NOT on Ben\'s list for the pancakes?',
-    o: ['Flour.', 'Eggs.', 'Milk.', 'Rice.'],
-    a: 3,
+    o: ['Rice.', 'Flour.', 'Eggs.', 'Milk.'],
+    a: 0,
     ex: '信中提到 flour、eggs、milk、sugar、butter，沒有 rice。'
   },
   grammar: [
     { t: 'When / What date 問日期',
       d: 'When is…? 問「什麼時候」；What date is it today? 問「幾月幾日」。回答日期用 on：on December 5th（序數 first, second, third, fifth…）。',
       ex: ['<b>When</b> is the school fair? — It\'s <b>on</b> Saturday, December 5th.'],
-      q: 'A: ______ is the school fair?  B: It\'s on December 5th.', o: ['When', 'Whose', 'Which', 'How many'], a: 0,
+      q: 'A: ______ is the school fair?  B: It\'s on December 5th.', o: ['Whose', 'Which', 'When', 'How many'], a: 2,
       why: '回答是日期，用 When 問「什麼時候」。' },
     { t: 'Whose 與所有格代名詞',
       d: 'Whose + 名詞 問「誰的」。所有格代名詞 = 所有格 + 名詞：mine / yours / his / hers / ours / theirs，後面不再接名詞。',
       ex: ['<b>Whose</b> pans can we use? — Amy\'s and <b>mine</b>.'],
-      q: 'A: Whose bottle is this?  B: It\'s ______. My name is on it.', o: ['my', 'mine', 'me', 'I'], a: 1,
+      q: 'A: Whose bottle is this?  B: It\'s ______. My name is on it.', o: ['my', 'me', 'I', 'mine'], a: 3,
       why: '空格後沒有名詞，用所有格代名詞 mine（= my bottle）。' },
     { t: 'How many / How much、Which',
       d: 'How many + 可數複數名詞（eggs）；How much + 不可數名詞（flour, sugar, milk）。Which 用在有範圍的選擇：Which…, A or B?',
@@ -287,17 +287,17 @@ window.UNITS = [
     { t: 'be 動詞過去式：was / were',
       d: 'I / he / she / it／單數 → was；you / we / they／複數 → were。否定 wasn\'t / weren\'t。',
       ex: ['The art in the museum <b>was</b> amazing.', 'Everyone <b>was</b> tired but happy.（everyone 視為單數）'],
-      q: 'The kids ______ very happy in the park yesterday.', o: ['are', 'was', 'were', 'is'], a: 2,
+      q: 'The kids ______ very happy in the park yesterday.', o: ['are', 'was', 'is', 'were'], a: 3,
       why: 'yesterday → 過去式；The kids 複數 → were。' },
     { t: '規則動詞過去式：-ed 的拼法',
       d: '一般加 ed（visit → visited）；字尾 e 加 d（share → shared）；子音 + y 改 ied（study → studied）；短母音 + 單子音重複字尾（stop → stopped）。否定：didn\'t + 原形。',
       ex: ['Our class <b>visited</b> the museum.', 'He <b>didn\'t play</b> with us.'],
-      q: 'The bus ______ in front of the museum yesterday.', o: ['stoped', 'stopped', 'stoping', 'stops'], a: 1,
+      q: 'The bus ______ in front of the museum yesterday.', o: ['stopped', 'stoped', 'stoping', 'stops'], a: 0,
       why: 'stop 是「短母音 + 單子音」，重複 p 再加 ed → stopped。' },
     { t: '不規則動詞過去式',
       d: '要一個一個背：have → had、keep → kept、throw → threw、bring → brought、buy → bought、swim → swam、begin → began。',
       ex: ['Everyone <b>brought</b> snacks.', 'We <b>threw</b> them away.'],
-      q: 'After lunch yesterday, we ______ our trash away.', o: ['throwed', 'threw', 'throw', 'throws'], a: 1,
+      q: 'After lunch yesterday, we ______ our trash away.', o: ['throwed', 'throw', 'threw', 'throws'], a: 2,
       why: 'throw 是不規則動詞，過去式為 threw。' }
   ],
   battle: {
@@ -332,15 +332,15 @@ window.UNITS = [
   reading: {
     type: '因果推論',
     q: 'Why did Amy call Mr. Chen?',
-    o: ['She wanted an umbrella from him.', 'She was sick and wanted to stay home.', 'She wanted to give him some medicine.', 'She forgot the weather report.'],
-    a: 1,
+    o: ['She wanted an umbrella from him.', 'She wanted to give him some medicine.', 'She was sick and wanted to stay home.', 'She forgot the weather report.'],
+    a: 2,
     ex: 'Amy 說 I\'m sick… Can I stay home today? 可知她生病想請假在家休息。'
   },
   grammar: [
     { t: '天氣問答',
       d: 'How\'s the weather…? = What\'s the weather like…? 回答：It\'s sunny / rainy / cloudy / windy / hot / cold。',
       ex: ['<b>How\'s the weather</b> in Kaohsiung? — It\'s usually hot and sunny.'],
-      q: 'A: ______ the weather in Kaohsiung today?  B: It\'s sunny and hot.', o: ['What\'s', 'How\'s', 'Why\'s', 'Who\'s'], a: 1,
+      q: 'A: ______ the weather in Kaohsiung today?  B: It\'s sunny and hot.', o: ['How\'s', 'What\'s', 'Why\'s', 'Who\'s'], a: 0,
       why: '問天氣用 How\'s the weather…?（What\'s 要搭配 like：What\'s the weather like?）' },
     { t: '授與動詞：V ＋ 人 ＋ 物 ＝ V ＋ 物 ＋ to / for ＋ 人',
       d: 'give / send / show / tell / pass 用 to；buy / make / cook / get 用 for。',
@@ -350,7 +350,7 @@ window.UNITS = [
     { t: '連接詞 because / so',
       d: 'because 接「原因」，so 接「結果」。because 和 so 不能同時出現在一個句子裡。',
       ex: ['I\'m sick <b>because</b> I caught a cold.', 'She walked home in the rain, <b>so</b> her hair was wet.'],
-      q: 'Amy forgot her umbrella, ______ she got wet.', o: ['because', 'so', 'but', 'or'], a: 1,
+      q: 'Amy forgot her umbrella, ______ she got wet.', o: ['because', 'but', 'or', 'so'], a: 3,
       why: '「沒帶傘」是原因，「淋濕」是結果，結果前用 so。' }
   ],
   battle: {
@@ -384,9 +384,9 @@ window.UNITS = [
   reading: {
     type: '推論',
     q: 'What can we learn about the writer?',
-    o: ['The writer still wants to be a singer.', 'A game at the gym changed the writer\'s dream.', 'The writer only practices after school.', 'The writer thinks it\'s easy to be a good player.'],
-    a: 1,
-    ex: '作者經過體育館看到比賽後 I had a new dream，夢想從歌手變成籃球明星。(C) 早上也練；(D) 文中說 not easy。'
+    o: ['The writer still wants to be a singer.', 'The writer only practices after school.', 'The writer thinks it\'s easy to be a good player.', 'A game at the gym changed the writer\'s dream.'],
+    a: 3,
+    ex: '作者經過體育館看到比賽後 I had a new dream，夢想從歌手變成籃球明星。(B) 早上也練；(C) 文中說 not easy。'
   },
   grammar: [
     { t: '時間連接詞 when / before / after',
@@ -402,7 +402,7 @@ window.UNITS = [
     { t: '不定詞、動名詞與虛主詞 it',
       d: 'to V / V-ing 可以當主詞。不定詞當主詞太長時，常用 It 當虛主詞：It is + 形容詞 + to V。',
       ex: ['<b>Playing</b> basketball is my joy.', '<b>It\'s</b> not easy <b>to be</b> a good player.'],
-      q: '______ is not easy to be a good player.', o: ['This', 'That', 'It', 'He'], a: 2,
+      q: '______ is not easy to be a good player.', o: ['It', 'This', 'That', 'He'], a: 0,
       why: '真正的主詞是 to be a good player，句首用虛主詞 It。' }
   ],
   battle: {
@@ -436,8 +436,8 @@ window.UNITS = [
   reading: {
     type: '細節推論',
     q: 'Which is TRUE about the trip?',
-    o: ['They will take a taxi to Hamasen.', 'The boat trip takes thirty minutes.', 'They should bring some cash.', 'The temple is next to the beach.'],
-    a: 2,
+    o: ['They should bring some cash.', 'They will take a taxi to Hamasen.', 'The boat trip takes thirty minutes.', 'The temple is next to the beach.'],
+    a: 0,
     ex: 'some stalls only take cash → 最好帶現金。他們搭輕軌到哈瑪星；船程十分鐘；廟在麵包店對面。'
   },
   grammar: [
@@ -449,7 +449,7 @@ window.UNITS = [
     { t: '花費：spend / take / cost / pay',
       d: '人 spend 時間/金錢 on 物；It takes (人) 時間 to V；物 cost (人) 金錢；人 pay 金錢 for 物。',
       ex: ['<b>It takes</b> about thirty minutes <b>to get</b> to Hamasen.', 'I\'m going to <b>spend</b> my own money <b>on</b> some gifts.'],
-      q: 'The boat ticket ______ me forty dollars.', o: ['spent', 'took', 'cost', 'paid'], a: 2,
+      q: 'The boat ticket ______ me forty dollars.', o: ['spent', 'took', 'paid', 'cost'], a: 3,
       why: '主詞是「物」（ticket）且談金錢，用 cost。' },
     { t: '問路與指路',
       d: '問：Excuse me. How can I get to…? / Where is…? 答：Go straight for two blocks. Turn left / right at the corner. It\'s across from / next to…',
@@ -496,7 +496,7 @@ window.UNITS = [
     { t: '比較級與最高級',
       d: '兩者比較：-er / more + 形容詞 + than；三者以上：the -est / the most + 形容詞（in / of…）。large → larger → largest；expensive → more expensive → the most expensive；good → better → best。',
       ex: ['The new school is <b>larger than</b> the old one.', 'They\'re <b>the cheapest</b> in town!'],
-      q: 'These shoes are the ______ in town.', o: ['cheap', 'cheaper', 'cheapest', 'more cheap'], a: 2,
+      q: 'These shoes are the ______ in town.', o: ['cheap', 'cheaper', 'more cheap', 'cheapest'], a: 3,
       why: 'the … in town 是全城之中比較，用最高級 cheapest。' },
     { t: '原級比較：as ＋ 形容詞原級 ＋ as',
       d: '表示「和…一樣」。否定 not as…as 表示「不如」。中間只能放原級。',
@@ -506,7 +506,7 @@ window.UNITS = [
     { t: 'used to ＋ 原形動詞（過去習慣／狀態）',
       d: '表示「以前常…／以前是…（現在不是了）」。否定 didn\'t use to；注意與 be used to + V-ing（習慣於）區分。',
       ex: ['Our school <b>used to be</b> in Qianjin District.', 'I <b>used to buy</b> everything online.'],
-      q: 'Leo ______ buy everything online, but he doesn\'t anymore.', o: ['use to', 'used to', 'is used to', 'uses to'], a: 1,
+      q: 'Leo ______ buy everything online, but he doesn\'t anymore.', o: ['use to', 'is used to', 'used to', 'uses to'], a: 2,
       why: '過去的習慣、現在不做了 → used to + 原形 buy。' }
   ],
   battle: {
@@ -541,25 +541,25 @@ window.UNITS = [
   reading: {
     type: '推論',
     q: 'What can we infer from the diary?',
-    o: ['Mr. Chen did all the work by himself.', 'The team members worked together at the barbecue.', 'Ben was careful when he ate.', 'Amy didn\'t enjoy the night.'],
-    a: 1,
-    ex: '男生生火、女生掛燈，大家分工合作；Ben 吃太快燙到嘴，Amy 開心唱歌，(A)(C)(D) 皆錯。'
+    o: ['Mr. Chen did all the work by himself.', 'Ben was careful when he ate.', 'The team members worked together at the barbecue.', 'Amy didn\'t enjoy the night.'],
+    a: 2,
+    ex: '男生生火、女生掛燈，大家分工合作；Ben 吃太快燙到嘴，Amy 開心唱歌，(A)(B)(D) 皆錯。'
   },
   grammar: [
     { t: '連綴動詞 ＋ 形容詞',
       d: 'look / sound / smell / taste / feel / get / become 後面接形容詞（不是副詞），描述主詞的狀態或感覺。',
       ex: ['The meat <b>smelled great</b>, and the bread <b>tasted sweet</b>.', 'The moon <b>looked big</b> and round.'],
-      q: 'The meat smells ______.', o: ['well', 'greatly', 'great', 'greatness'], a: 2,
+      q: 'The meat smells ______.', o: ['great', 'well', 'greatly', 'greatness'], a: 0,
       why: 'smell 是連綴動詞，後接形容詞 great。' },
     { t: '使役動詞 make / let / have ＋ 受詞 ＋ 原形動詞',
       d: 'make 叫（強迫）、let 讓（允許）、have 要求（安排）某人做某事，受詞後面用原形動詞。',
       ex: ['Mr. Chen <b>had the boys make</b> a fire.', 'He <b>let the girls hang</b> string lights.', 'Tonight <b>made me feel</b> lucky.'],
-      q: 'Mr. Chen let the girls ______ the lights.', o: ['hang', 'to hang', 'hanging', 'hangs'], a: 0,
+      q: 'Mr. Chen let the girls ______ the lights.', o: ['to hang', 'hang', 'hanging', 'hangs'], a: 1,
       why: 'let + 受詞 + 原形動詞 → hang。' },
     { t: '情態副詞與副詞比較',
       d: '副詞修飾動詞，多由形容詞加 ly（loud → loudly、happy → happily）。比較級：faster / more slowly than；最高級：the fastest / the most slowly。fast、hard 本身就是副詞。',
       ex: ['Everyone laughed <b>loudly</b>.', 'Ben ate <b>faster than</b> anyone else.'],
-      q: 'Ben ate ______ than anyone else.', o: ['fast', 'faster', 'fastest', 'more fast'], a: 1,
+      q: 'Ben ate ______ than anyone else.', o: ['fast', 'fastest', 'more fast', 'faster'], a: 3,
       why: '有 than → 比較級；fast 的比較級是 faster。' }
   ],
   battle: {
@@ -593,8 +593,8 @@ window.UNITS = [
   reading: {
     type: '作者意圖',
     q: 'What does the writer want readers to do?',
-    o: ['Stay home during a typhoon.', 'Take action to keep plastic out of the ocean.', 'Go to Cijin to see sea turtles.', 'Buy new straws for their classmates.'],
-    a: 1,
+    o: ['Stay home during a typhoon.', 'Go to Cijin to see sea turtles.', 'Buy new straws for their classmates.', 'Take action to keep plastic out of the ocean.'],
+    a: 3,
     ex: '最後一段 If we don\'t take action… Carry your own metal straw… Start with yourself today! 是在呼籲讀者減少塑膠、保護海洋。'
   },
   grammar: [
@@ -611,7 +611,7 @@ window.UNITS = [
     { t: 'if / although；數量不定代名詞',
       d: 'if 條件句「主要子句用未來式、if 子句用現在式」。although / though 表「雖然」，不可再加 but。不定代名詞：兩者 one…the other；很多人中 some…others。',
       ex: ['<b>If</b> we <b>don\'t</b> take action, more sea animals <b>will</b> die.', '<b>Although</b> we were tired, we felt proud.', '<b>One</b> was fine, but <b>the other</b> had a straw in its nose.'],
-      q: '______ we were tired, we felt proud of ourselves.', o: ['If', 'Although', 'Because', 'So'], a: 1,
+      q: '______ we were tired, we felt proud of ourselves.', o: ['Although', 'If', 'Because', 'So'], a: 0,
       why: '「累」和「感到驕傲」語意相反，用 Although（雖然）。' }
   ],
   battle: {
